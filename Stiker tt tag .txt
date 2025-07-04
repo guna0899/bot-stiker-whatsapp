@@ -1,0 +1,279 @@
+// =================================================================
+// KODE LENGKAP & FINAL (FITUR BARU: TIKTOK DOWNLOADER v2)
+// Dibuat: 4 Juli 2025
+// Fitur: .stiker, .menu, .tagall, .ai, .tiktok
+// =================================================================
+
+const {
+    default: makeWASocket,
+    useMultiFileAuthState,
+    downloadContentFromMessage,
+    makeInMemoryStore,
+    jidDecode,
+    DisconnectReason
+} = require('@whiskeysockets/baileys');
+const pino = require('pino');
+const { Boom } = require('@hapi/boom');
+const fs = require('fs');
+const qrcode = require('qrcode-terminal');
+const ffmpeg = require('fluent-ffmpeg');
+const path = require('path');
+const axios = require('axios'); // Alat baru
+const cheerio = require('cheerio'); // Alat baru
+
+/**
+ * Fungsi untuk membuat stiker dari GAMBAR/VIDEO
+ */
+async function createSticker(media, isVideo = false) {
+    return new Promise((resolve, reject) => {
+        const tempFileIn = path.join(__dirname, `temp_in_${Date.now()}.${isVideo ? 'mp4' : 'jpg'}`);
+        const tempFileOut = path.join(__dirname, `temp_out_${Date.now()}.webp`);
+        fs.writeFileSync(tempFileIn, media);
+
+        ffmpeg(tempFileIn)
+            .on('error', (err) => {
+                console.error('Error ffmpeg (image sticker):', err);
+                if (fs.existsSync(tempFileIn)) fs.unlinkSync(tempFileIn);
+                reject(err);
+            })
+            .on('end', () => {
+                const sticker = fs.readFileSync(tempFileOut);
+                fs.unlinkSync(tempFileIn);
+                fs.unlinkSync(tempFileOut);
+                resolve(sticker);
+            })
+            .toFormat('webp')
+            .addOutputOptions([
+                '-vcodec', 'libwebp',
+                '-vf', `scale='min(512,iw)':min'(512,ih)':force_original_aspect_ratio=decrease,fps=15, pad=512:512:-1:-1:color=white@0.0, split [a][b]; [a] palettegen=reserve_transparent=on:transparency_color=ffffff [p]; [b][p] paletteuse`
+            ])
+            .duration(isVideo ? 5 : 999)
+            .save(tempFileOut);
+    });
+}
+
+/**
+ * Fungsi untuk berinteraksi dengan Google Gemini AI
+ */
+async function chatWithGemini(prompt) {
+    try {
+        console.log(`[Gemini AI] Mengirim prompt: "${prompt}"`);
+        const apiKey = "AIzaSyB137iAwbVB88PuLYekWx9SJCE_J6Ey6J8";
+        if (!apiKey) return "Waduh, API Key Gemini belum dimasukkan.";
+
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+        const payload = { contents: [{ parts: [{ text: prompt }] }] };
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            const errorBody = await response.text();
+            throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+        }
+        const result = await response.json();
+        if (result.candidates && result.candidates[0]?.content?.parts[0]?.text) {
+            return result.candidates[0].content.parts[0].text;
+        } else {
+            return "Maaf, aku bingung mau jawab apa.";
+        }
+    } catch (error) {
+        console.error("[Gemini AI] Gagal menghubungi AI:", error);
+        return `Waduh, lagi ada gangguan koneksi ke server AI.\n\nDetail Error: ${error.message}`;
+    }
+}
+
+/**
+ * FUNGSI BARU: Untuk download video TikTok tanpa watermark (TEKNIK BARU)
+ * @param {string} url URL video TikTok
+ * @returns {Promise<Buffer>} Buffer dari video mp4
+ */
+async function downloadTikTok(url) {
+    try {
+        // Teknik baru: Menggunakan API dari lovetik.com
+        const response = await axios.post('https://lovetik.com/api/ajax/search', new URLSearchParams({
+            query: url
+        }), {
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36'
+            }
+        });
+
+        const result = response.data;
+
+        // Cek jika API merespon dengan error
+        if (result.status !== 'ok' || !result.links || result.links.length === 0) {
+            throw new Error(result.mess || 'Tidak dapat menemukan link download. Mungkin videonya privat atau link salah.');
+        }
+
+        // Ambil link download pertama (biasanya yang tanpa watermark)
+        const downloadLink = result.links[0].a;
+
+        if (!downloadLink) {
+             throw new Error('Gagal parsing link download dari API.');
+        }
+        
+        console.log(`[TikTok] Ditemukan link download via lovetik: ${downloadLink}`);
+
+        // Mendownload video dari link yang ditemukan
+        const videoResponse = await axios.get(downloadLink, {
+            responseType: 'arraybuffer'
+        });
+
+        return Buffer.from(videoResponse.data, 'binary');
+
+    } catch (error) {
+        console.error('[TikTok] Gagal mendownload video:', error.message);
+        // Memberikan pesan error yang lebih spesifik ke user
+        throw new Error(`Gagal mendownload video TikTok. Coba lagi dengan link lain atau beberapa saat lagi. (${error.message})`);
+    }
+}
+
+
+/**
+ * Fungsi utama untuk menjalankan bot
+ */
+async function connectToWhatsApp() {
+    const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys');
+    const sock = makeWASocket({ logger: pino({ level: 'silent' }), auth: state });
+
+    sock.ev.on('connection.update', (update) => {
+        const { connection, lastDisconnect, qr } = update;
+        if (qr) {
+            console.log('Pindai QR code ini:');
+            qrcode.generate(qr, { small: true });
+        }
+        if (connection === 'close') {
+            const shouldReconnect = (lastDisconnect.error instanceof Boom) && lastDisconnect.error.output.statusCode !== DisconnectReason.loggedOut;
+            if (shouldReconnect) connectToWhatsApp();
+        } else if (connection === 'open') {
+            console.log('Koneksi berhasil!');
+        }
+    });
+
+    sock.ev.on('creds.update', saveCreds);
+
+    sock.ev.on('messages.upsert', async (m) => {
+        const msg = m.messages[0];
+        if (!msg.message) return;
+
+        const from = msg.key.remoteJid;
+        const fullMessage = msg.message.conversation || msg.message.extendedTextMessage?.text || msg.message.imageMessage?.caption || msg.message.videoMessage?.caption || '';
+        if (!fullMessage) return;
+        
+        const commandSticker = '.stiker';
+        const commandMenu = '.menu';
+        const commandTagAll = '.tagall';
+        const commandAI = '.ai';
+        const commandTikTok = '.tiktok'; // Perintah baru
+
+        try {
+            if (fullMessage.toLowerCase() === commandMenu) {
+                const menuText = `
+╭───「 *MENU BOT* 」
+│
+│ Halo! Aku bot buatan Muna-kun.
+│ Ini daftar perintah yang bisa kamu pakai:
+│
+│ ❏  *.tiktok <link>*
+│     Download video TikTok tanpa watermark.
+│     Contoh: .tiktok https://vt.tiktok.com/...
+│
+│ ❏  *.ai <pertanyaan>*
+│     Tanya apa saja ke AI Gemini.
+│     Contoh: .ai apa itu node.js
+│
+│ ❏  *.stiker*
+│     Balas gambar/video atau kirim dengan
+│     caption .stiker untuk mengubahnya
+│     jadi stiker.
+│
+│ ❏  *.tagall*
+│     Sebut (mention) semua anggota di
+│     grup ini.
+│
+╰───「 ✨ 」
+                `;
+                await sock.sendMessage(from, { text: menuText }, { quoted: msg });
+            
+            } else if (fullMessage.toLowerCase().startsWith(commandTikTok)) {
+                const url = fullMessage.substring(commandTikTok.length).trim();
+                if (!url) {
+                    await sock.sendMessage(from, { text: 'Link TikTok-nya mana? Contoh: .tiktok https://vt.tiktok.com/xxxxx/' }, { quoted: msg });
+                    return;
+                }
+
+                console.log(`[TikTok] Perintah diterima dari ${from} dengan URL: ${url}`);
+                await sock.sendMessage(from, { text: 'Oke, pakai teknik baru nih buat download... Sabar ya. 🚀' }, { quoted: msg });
+                
+                const videoBuffer = await downloadTikTok(url);
+                await sock.sendMessage(from, { 
+                    video: videoBuffer,
+                    caption: 'Nih videonya, Muna-kun! Berhasil pakai teknik baru! ✨'
+                }, { quoted: msg });
+
+            } else if (fullMessage.toLowerCase().startsWith(commandAI)) {
+                const userPrompt = fullMessage.substring(commandAI.length).trim();
+                if (!userPrompt) {
+                    await sock.sendMessage(from, { text: 'Mau tanya apa ke AI? Contoh: .ai Siapa penemu bola lampu?' }, { quoted: msg });
+                    return;
+                }
+                
+                await sock.sendMessage(from, { text: 'Oke, aku tanyain ke Gemini dulu ya... 🤖' }, { quoted: msg });
+                const aiResponse = await chatWithGemini(userPrompt);
+                await sock.sendMessage(from, { text: aiResponse }, { quoted: msg });
+
+            } else if (fullMessage.toLowerCase() === commandTagAll) {
+                if (!from.endsWith('@g.us')) {
+                    await sock.sendMessage(from, { text: 'Perintah ini hanya bisa dipakai di dalam grup!' }, { quoted: msg });
+                    return;
+                }
+                const groupMetadata = await sock.groupMetadata(from);
+                const participants = groupMetadata.participants;
+                let text = '📣 *SEMUANYA, KUMPUL!* 📣\n\n';
+                let mentions = [];
+                for (let participant of participants) {
+                    text += `│ ↳ @${participant.id.split('@')[0]}\n`;
+                    mentions.push(participant.id);
+                }
+                await sock.sendMessage(from, { text: text, mentions: mentions }, { quoted: msg });
+
+            } else if (fullMessage.toLowerCase().startsWith(commandSticker)) {
+                const messageType = Object.keys(msg.message)[0];
+                const isMedia = (messageType === 'imageMessage' || messageType === 'videoMessage');
+                const isQuotedMedia = msg.message.extendedTextMessage?.contextInfo?.quotedMessage && (msg.message.extendedTextMessage.contextInfo.quotedMessage.imageMessage || msg.message.extendedTextMessage.contextInfo.quotedMessage.videoMessage);
+
+                if (!isMedia && !isQuotedMedia) {
+                     await sock.sendMessage(from, { text: `Perintah .stiker harus dikirim bareng gambar/video, atau balas gambar/video yang sudah ada.` }, { quoted: msg });
+                    return;
+                }
+
+                let mediaMsg;
+                let mediaType;
+                if (isMedia) {
+                    mediaMsg = msg.message[messageType];
+                    mediaType = messageType;
+                } else {
+                    mediaMsg = msg.message.extendedTextMessage.contextInfo.quotedMessage[Object.keys(msg.message.extendedTextMessage.contextInfo.quotedMessage)[0]];
+                    mediaType = Object.keys(msg.message.extendedTextMessage.contextInfo.quotedMessage)[0];
+                }
+                
+                await sock.sendMessage(from, { text: 'Sabar ya, stiker lagi dibikin...' }, { quoted: msg });
+                const stream = await downloadContentFromMessage(mediaMsg, mediaType.replace('Message', ''));
+                let buffer = Buffer.from([]);
+                for await (const chunk of stream) buffer = Buffer.concat([buffer, chunk]);
+                
+                const sticker = await createSticker(buffer, mediaType === 'videoMessage');
+                await sock.sendMessage(from, { sticker: sticker }, { quoted: msg });
+            }
+        } catch (error) {
+            console.error('Gagal memproses permintaan:', error);
+            await sock.sendMessage(from, { text: `Waduh, ada error nih. Coba lagi nanti ya.\n\nError: ${error.message}` }, { quoted: msg });
+        }
+    });
+}
+
+connectToWhatsApp();

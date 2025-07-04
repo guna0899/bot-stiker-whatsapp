@@ -1,132 +1,87 @@
 // =================================================================
-// KODE FINAL SUPER SIMPEL (HANYA STIKER DARI GAMBAR/VIDEO)
-// Dibuat: 4 Juli 2025
-// Fitur: .stiker (dari gambar/video)
+// STRUKTUR BARU: index.js (Hanya sebagai Manajer/Otak)
 // =================================================================
 
 const {
     default: makeWASocket,
     useMultiFileAuthState,
-    downloadContentFromMessage,
-    makeInMemoryStore,
-    jidDecode,
     DisconnectReason
 } = require('@whiskeysockets/baileys');
 const pino = require('pino');
 const { Boom } = require('@hapi/boom');
 const fs = require('fs');
-const qrcode = require('qrcode-terminal');
-const ffmpeg = require('fluent-ffmpeg');
 const path = require('path');
+const qrcode = require('qrcode-terminal');
 
-/**
- * Fungsi untuk membuat stiker dari GAMBAR/VIDEO
- * @param {Buffer} media Buffer dari gambar/video
- * @param {boolean} isVideo Apakah media adalah video
- * @returns {Promise<Buffer>} Buffer dari stiker webp
- */
-async function createSticker(media, isVideo = false) {
-    return new Promise((resolve, reject) => {
-        const tempFileIn = path.join(__dirname, `temp_in_${Date.now()}.${isVideo ? 'mp4' : 'jpg'}`);
-        const tempFileOut = path.join(__dirname, `temp_out_${Date.now()}.webp`);
-        fs.writeFileSync(tempFileIn, media);
-
-        ffmpeg(tempFileIn)
-            .on('error', (err) => {
-                console.error('Error ffmpeg (image sticker):', err);
-                if (fs.existsSync(tempFileIn)) fs.unlinkSync(tempFileIn);
-                reject(err);
-            })
-            .on('end', () => {
-                const sticker = fs.readFileSync(tempFileOut);
-                fs.unlinkSync(tempFileIn);
-                fs.unlinkSync(tempFileOut);
-                resolve(sticker);
-            })
-            .toFormat('webp')
-            .addOutputOptions([
-                '-vcodec', 'libwebp',
-                '-vf', `scale='min(512,iw)':min'(512,ih)':force_original_aspect_ratio=decrease,fps=15, pad=512:512:-1:-1:color=white@0.0, split [a][b]; [a] palettegen=reserve_transparent=on:transparency_color=ffffff [p]; [b][p] paletteuse`
-            ])
-            .duration(isVideo ? 5 : 999)
-            .save(tempFileOut);
-    });
-}
-
-/**
- * Fungsi utama untuk menjalankan bot
- */
+// Fungsi utama untuk menjalankan bot
 async function connectToWhatsApp() {
     const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys');
     
+    // Buat koneksi socket
     const sock = makeWASocket({
         logger: pino({ level: 'silent' }),
         auth: state,
     });
 
+    // =================================================================
+    // BAGIAN PENTING: MEMBACA SEMUA PERINTAH DARI FOLDER 'commands'
+    // =================================================================
+    sock.commands = new Map();
+    const commandFiles = fs.readdirSync(path.join(__dirname, 'commands')).filter(file => file.endsWith('.js'));
+
+    for (const file of commandFiles) {
+        const command = require(path.join(__dirname, 'commands', file));
+        sock.commands.set(command.name, command);
+        console.log(`[Command Loader] Berhasil memuat perintah: ${command.name}.js`);
+    }
+    // =================================================================
+
+    // Handler untuk koneksi
     sock.ev.on('connection.update', (update) => {
         const { connection, lastDisconnect, qr } = update;
         if (qr) {
-            console.log('Pindai QR code ini dengan WhatsApp di HP-mu:');
+            console.log('Pindai QR code ini:');
             qrcode.generate(qr, { small: true });
         }
         if (connection === 'close') {
             const shouldReconnect = (lastDisconnect.error instanceof Boom) && lastDisconnect.error.output.statusCode !== DisconnectReason.loggedOut;
-            console.log('Koneksi terputus karena:', lastDisconnect.error, ', mencoba menghubungkan kembali:', shouldReconnect);
             if (shouldReconnect) connectToWhatsApp();
         } else if (connection === 'open') {
-            console.log('Koneksi berhasil, bot siap digunakan!');
+            console.log('Koneksi berhasil! Bot siap menerima perintah.');
         }
     });
 
+    // Simpan kredensial
     sock.ev.on('creds.update', saveCreds);
 
+    // Handler utama untuk pesan masuk
     sock.ev.on('messages.upsert', async (m) => {
         const msg = m.messages[0];
-        if (!msg.message) return;
+        if (!msg.message || msg.key.fromMe) return;
 
-        const from = msg.key.remoteJid;
         const fullMessage = msg.message.conversation || msg.message.extendedTextMessage?.text || msg.message.imageMessage?.caption || msg.message.videoMessage?.caption || '';
         if (!fullMessage) return;
-        
-        const commandSticker = '.stiker';
 
-        try {
-            if (fullMessage.toLowerCase().startsWith(commandSticker)) {
-                const messageType = Object.keys(msg.message)[0];
-                const isMedia = (messageType === 'imageMessage' || messageType === 'videoMessage');
-                const isQuotedMedia = msg.message.extendedTextMessage?.contextInfo?.quotedMessage && (msg.message.extendedTextMessage.contextInfo.quotedMessage.imageMessage || msg.message.extendedTextMessage.contextInfo.quotedMessage.videoMessage);
+        // Cek apakah pesan adalah perintah
+        const prefix = '.';
+        if (!fullMessage.startsWith(prefix)) return;
 
-                if (!isMedia && !isQuotedMedia) {
-                     await sock.sendMessage(from, { text: `Perintah .stiker harus dikirim bareng gambar/video, atau balas gambar/video yang sudah ada.` }, { quoted: msg });
-                    return;
-                }
+        const args = fullMessage.slice(prefix.length).trim().split(/ +/);
+        const commandName = args.shift().toLowerCase();
 
-                let mediaMsg;
-                let mediaType;
-                if (isMedia) {
-                    mediaMsg = msg.message[messageType];
-                    mediaType = messageType;
-                } else {
-                    mediaMsg = msg.message.extendedTextMessage.contextInfo.quotedMessage[Object.keys(msg.message.extendedTextMessage.contextInfo.quotedMessage)[0]];
-                    mediaType = Object.keys(msg.message.extendedTextMessage.contextInfo.quotedMessage)[0];
-                }
-                
-                console.log(`[Image Sticker] Perintah diterima dari ${from}`);
-                await sock.sendMessage(from, { text: 'Sabar ya, stiker lagi dibikin...' }, { quoted: msg });
-                
-                const stream = await downloadContentFromMessage(mediaMsg, mediaType.replace('Message', ''));
-                let buffer = Buffer.from([]);
-                for await (const chunk of stream) buffer = Buffer.concat([buffer, chunk]);
-                
-                const sticker = await createSticker(buffer, mediaType === 'videoMessage');
-                await sock.sendMessage(from, { sticker: sticker }, { quoted: msg });
+        const command = sock.commands.get(commandName);
+
+        if (command) {
+            try {
+                // Jalankan perintah dari file yang sesuai
+                await command.execute(sock, msg, args);
+            } catch (error) {
+                console.error(`Error saat menjalankan perintah '${commandName}':`, error);
+                await sock.sendMessage(msg.key.remoteJid, { text: `Waduh, ada error pas jalanin perintah itu.\n\nError: ${error.message}` }, { quoted: msg });
             }
-        } catch (error) {
-            console.error('Gagal memproses permintaan stiker:', error);
-            await sock.sendMessage(from, { text: `Waduh, gagal bikin stikernya. Error: ${error.message}` }, { quoted: msg });
         }
     });
 }
 
+// Jalankan bot!
 connectToWhatsApp();

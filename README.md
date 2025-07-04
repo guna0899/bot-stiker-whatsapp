@@ -50,4 +50,8 @@ node index.js
 4. Scan QR Code
 Saat bot berjalan pertama kali, akan muncul QR Code di terminal. Scan QR Code tersebut menggunakan aplikasi WhatsApp di HP-mu (Setelan > Perangkat tertaut > Tautkan perangkat) untuk menghubungkan bot.
 
+<<<<<<< HEAD
 Selamat mencoba dan semoga bermanfaat!
+=======
+Selamat mencoba dan semoga bermanfaat!
+>>>>>>> c651d7b1b5128f011e9395475236d744f73a9a33

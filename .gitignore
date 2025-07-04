@@ -1,5 +1,5 @@
 # Folder dependensi Node.js (Wajib di-ignore!)
-node_modules
+# node_modules
 
 # Folder sesi login Baileys (Rahasia, jangan di-upload!)
 auth_info_baileys

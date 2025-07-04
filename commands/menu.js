@@ -9,6 +9,8 @@ module.exports = {
 Halo! Ini daftar perintah yang bisa kamu pakai:
 
 *Hiburan & Info*
+› *.hijriah* - _Cek tanggal Hijriah hari ini._
+› *.katakata* - _Dapet kata-kata bijak._
 › *.pantun* - _Dapet pantun acak._
 › *.gempa* - _Info gempa terkini._
 › *.wiki <topik>* - _Cari info di Wikipedia._

@@ -1,29 +1,6 @@
 🤖 WhatsApp Bot Muna-kun 🤖
 Bot WhatsApp sederhana yang dibuat dengan Node.js dan Baileys. Bot ini dilengkapi dengan berbagai fitur, mulai dari membuat stiker hingga berinteraksi dengan AI.
 
-✨ Fitur
-Berikut adalah daftar fitur yang saat ini tersedia di dalam bot:
-
-AI & Informasi:
-
-.ai <pertanyaan>: Mengajukan pertanyaan apa saja ke AI Google Gemini.
-
-.wiki <topik>: Mencari ringkasan singkat dari Wikipedia Indonesia.
-
-.gempa: Menampilkan informasi gempa bumi terkini di Indonesia dari BMKG.
-
-Tools & Hiburan:
-
-.stiker: Mengubah gambar atau video (maks 5 detik) menjadi stiker. Cukup kirim media dengan caption atau balas media yang sudah ada.
-
-.tiktok <link>: Mendownload video TikTok tanpa watermark.
-
-.pantun: Mendapatkan pantun acak untuk hiburan.
-
-Fitur Grup:
-
-.tagall: Mention semua anggota yang ada di dalam grup.
-
 .menu: Menampilkan daftar semua perintah yang tersedia.
 
 🚀 Cara Menjalankan
@@ -50,8 +27,4 @@ node index.js
 4. Scan QR Code
 Saat bot berjalan pertama kali, akan muncul QR Code di terminal. Scan QR Code tersebut menggunakan aplikasi WhatsApp di HP-mu (Setelan > Perangkat tertaut > Tautkan perangkat) untuk menghubungkan bot.
 
-<<<<<<< HEAD
-Selamat mencoba dan semoga bermanfaat!
-=======
-Selamat mencoba dan semoga bermanfaat!
->>>>>>> c651d7b1b5128f011e9395475236d744f73a9a33
+<<<<<<< Selamat mencoba dan semoga bermanfaat! >>>>>>> 

@@ -29,6 +29,4 @@ Saat bot berjalan pertama kali, akan muncul QR Code di terminal. Scan QR Code te
 
 <<<<<<< HEAD
 Selamat mencoba dan semoga bermanfaat!
-=======
-Selamat mencoba dan semoga bermanfaat!
 >>>>>>> 

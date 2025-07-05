@@ -1,30 +1,51 @@
-🤖 WhatsApp Bot Muna-kun 🤖
-Bot WhatsApp sederhana yang dibuat dengan Node.js dan Baileys. Bot ini dilengkapi dengan berbagai fitur, mulai dari membuat stiker hingga berinteraksi dengan AI.
+# WhatsApp Bot
+Bot WhatsApp yang dibuat dengan Node.js dan Baileys.
 
-.menu: Menampilkan daftar semua perintah yang tersedia.
+## ✨ Fitur
+- dowload ig *error*
+- dowload tiktok
+- toimg *error*
+- sticker
+- text to sticker 
 
-🚀 Cara Menjalankan
-Ikuti langkah-langkah berikut untuk menjalankan bot di komputermu:
+## 🚀 Cara Menjalankan
 
-1. Clone Repository
-Salin proyek ini ke komputermu dengan perintah:
+Ikuti langkah-langkah berikut untuk menjalankan bot:
 
-git clone [https://github.com/namakamu/bot-stiker-whatsapp.git](https://github.com/namakamu/bot-stiker-whatsapp.git)
-cd bot-stiker-whatsapp
+1. **Clone Repository**
+   ```bash
+   git clone https://github.com/Davidzinco/wa-bot
+   cd wa-bot
+ 
 
-Ganti namakamu dan bot-stiker-whatsapp dengan username dan nama repositori GitHub-mu.
+2. **Install Dependensi**
+   Pastikan kamu sudah menginstal [Node.js](https://nodejs.org/) dan npm.
 
-2. Install Dependensi
-Pastikan kamu sudah menginstall Node.js dan npm. Buka terminal di dalam folder proyek, lalu jalankan:
+   ```bash
+   npm install
+   ```
 
-npm install
+3. **Jalankan Bot**
 
-3. Jalankan Bot
-Untuk memulai bot, jalankan perintah berikut di terminal:
+   ```bash
+   node index.js
+   ```
 
-node index.js
+4. **Scan QR Code**
+    
+    Saat bot berjalan pertama kali, akan muncul QR Code di terminal. Scan QR Code tersebut menggunakan aplikasi WhatsApp di HP-mu (Setelan > Perangkat tertaut > Tautkan perangkat) untuk menghubungkan bot.
+    
+## Untuk Memulai
 
-4. Scan QR Code
-Saat bot berjalan pertama kali, akan muncul QR Code di terminal. Scan QR Code tersebut menggunakan aplikasi WhatsApp di HP-mu (Setelan > Perangkat tertaut > Tautkan perangkat) untuk menghubungkan bot.
+Menampilkan daftar semua perintah yang tersedia.
+  ```bash
+  .menu
+  ```
 
-<<<<<<< Selamat mencoba dan semoga bermanfaat! >>>>>>> 
+## 💡 Tips
+
+* Gunakan terminal yang mendukung tampilan QR code (misalnya Terminal bawaan, iTerm, atau VSCode Terminal).
+
+---
+  
+  <<<<<<< Selamat mencoba dan semoga bermanfaat! >>>>>>> 

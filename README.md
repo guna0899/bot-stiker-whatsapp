@@ -16,7 +16,7 @@ Ikuti langkah-langkah berikut untuk menjalankan bot:
    ```bash
    git clone https://github.com/guna0899/Bot-WhatsApp-
    cd wa-bot
- 
+    ```
 
 2. **Install Dependensi**
    Pastikan kamu sudah menginstal [Node.js](https://nodejs.org/) dan npm.

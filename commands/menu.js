@@ -4,26 +4,49 @@ module.exports = {
     async execute(sock, msg, args) {
         const from = msg.key.remoteJid;
         const menuText = `
-🤖 *BOT MUNA-KUN* 🤖
+╔═〘 🤖 *MUZE-CHAN BOT* 🤖 〙═╗
 
-Halo! Ini daftar perintah yang bisa kamu pakai:
+👋 *Halo! Aku siap membantu.*
+Berikut daftar perintah yang bisa kamu gunakan:
 
-*Hiburan & Info*
-› *.hijriah* - _Cek tanggal Hijriah hari ini._
-› *.katakata* - _Dapet kata-kata bijak._
-› *.pantun* - _Dapet pantun acak._
-› *.gempa* - _Info gempa terkini._
-› *.wiki <topik>* - _Cari info di Wikipedia._
+━━━━━━━━━━━━━━━
+🎯 *Hiburan & Info*
+━━━━━━━━━━━━━━━
+🌙 *.hijriah* 
+_Cek tanggal Hijriah hari ini._
 
-*Tools Keren*
-› *.ai <pertanyaan>* - _Tanya apa aja ke Gemini._
-› *.stiker* - _Ubah gambar/video jadi stiker._
-› *.tiktok <link>* - _Download video TikTok._
+💡 *.katakata* 
+_Dapatkan kata-kata bijak._
 
-*Fitur Grup*
-› *.tagall* - _Mention semua anggota._
+🎭 *.pantun* 
+_Pantun acak untukmu._
 
-Selamat mencoba! ✨
+🌍 *.gempa* 
+_Info gempa terbaru._
+
+📚 *.wiki <topik>* 
+_Cari info dari Wikipedia._
+
+━━━━━━━━━━━━━━━
+🛠️ *Tools Keren*
+━━━━━━━━━━━━━━━
+🤖 *.ai <pertanyaan>* 
+_Tanya apa saja ke Gemini._
+
+🎨 *.stiker* 
+_Ubah gambar/video jadi stiker._
+
+🎵 *.tiktok <link>* 
+_Download video TikTok._
+
+━━━━━━━━━━━━━━━
+👥 *Fitur Grup*
+━━━━━━━━━━━━━━━
+📢 *.tagall* 
+_Mention semua anggota grup._
+
+━━━━━━━━━━━━━━━
+✨ Selamat mencoba!
         `;
         await sock.sendMessage(from, { text: menuText }, { quoted: msg });
     }

@@ -10,7 +10,7 @@ module.exports = {
 Berikut daftar perintah yang bisa kamu gunakan:
 
 ━━━━━━━━━━━━━━━
-🎯 *Hiburan & Info*
+🎯 *Info*
 ━━━━━━━━━━━━━━━
 🌙 *.hijriah* 
 _Cek tanggal Hijriah hari ini._
@@ -27,6 +27,12 @@ _Info gempa terbaru._
 📚 *.wiki <topik>* 
 _Cari info dari Wikipedia._
 
+🔍 *.musimini* 
+_Cari info tentang anime yang sedang tayang musim ini._
+
+📖 *.anime <judul>*
+_Cari info tentang anime berdasarkan judul._
+
 ━━━━━━━━━━━━━━━
 🛠️ *Tools Keren*
 ━━━━━━━━━━━━━━━
@@ -38,6 +44,15 @@ _Ubah gambar/video jadi stiker._
 
 🎵 *.tiktok <link>* 
 _Download video TikTok._
+
+🎌 *.waifu*
+_Mengirim gambar waifu random._
+
+🎌 *.waifuneko*
+_Mengirim gambar neko random._
+
+🌐 *.whatanime*
+_Cari sumber anime dari screenshot._
 
 ━━━━━━━━━━━━━━━
 👥 *Fitur Grup*

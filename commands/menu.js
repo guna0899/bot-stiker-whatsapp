@@ -42,6 +42,9 @@ _Tanya apa saja ke Gemini._
 🎨 *.stiker* 
 _Ubah gambar/video jadi stiker._
 
+🎨 *.toimg*
+_Ubah stiker jadi gambar._
+
 🎵 *.tiktok <link>* 
 _Download video TikTok._
 

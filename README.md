@@ -14,7 +14,7 @@ Ikuti langkah-langkah berikut untuk menjalankan bot:
 
 1. **Clone Repository**
    ```bash
-   git clone https://github.com/Davidzinco/wa-bot
+   git clone https://github.com/guna0899/Bot-WhatsApp-
    cd wa-bot
  
 

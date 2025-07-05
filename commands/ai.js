@@ -49,7 +49,6 @@ module.exports = {
             return;
         }
         
-        await sock.sendMessage(from, { text: 'Oke, aku tanyain ke Gemini dulu ya... 🤖' }, { quoted: msg });
         const aiResponse = await chatWithGemini(userPrompt);
         await sock.sendMessage(from, { text: aiResponse }, { quoted: msg });
     }

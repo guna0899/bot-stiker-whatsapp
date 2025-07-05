@@ -68,4 +68,4 @@ module.exports = {
         const sticker = await createSticker(buffer, mediaType === 'videoMessage');
         await sock.sendMessage(from, { sticker: sticker }, { quoted: msg });
     }
-};
+};  

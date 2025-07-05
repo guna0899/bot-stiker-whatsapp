@@ -39,7 +39,7 @@ async function chatWithGemini(prompt) {
 
 module.exports = {
     name: 'ai',
-    description: 'Mengajukan pertanyaan ke AI Gemini.',
+    description: 'Let Me Think...',
     async execute(sock, msg, args) {
         const from = msg.key.remoteJid;
         const userPrompt = args.join(' ');

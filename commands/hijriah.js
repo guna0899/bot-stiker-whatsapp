@@ -8,7 +8,7 @@ module.exports = {
 
         try {
             console.log(`[Hijriah] Mengambil data kalender...`);
-            await sock.sendMessage(from, { text: 'Sebentar, lagi ngecek kalender Hijriah... 🌙' }, { quoted: msg });
+            await sock.sendMessage(from, { text: 'Wait... 🌙' }, { quoted: msg });
 
             // Mengambil tanggal hari ini
             const today = new Date();

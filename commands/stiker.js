@@ -46,6 +46,7 @@ module.exports = {
         }
         
         console.log(`[Sticker] Perintah diterima dari ${from}`);
+        await sock.sendMessage(from, { text: 'Wait...' }, { quoted: msg });
         
         const stream = await downloadContentFromMessage(mediaMsg, mediaType.replace('Message', ''));
         let buffer = Buffer.from([]);

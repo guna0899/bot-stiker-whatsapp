@@ -8,7 +8,7 @@ module.exports = {
 
         try {
             console.log(`[Gempa] Mengambil data dari BMKG...`);
-            await sock.sendMessage(from, { text: 'Sebentar, lagi ngecek data gempa terbaru dari BMKG... 🌍' }, { quoted: msg });
+            await sock.sendMessage(from, { text: 'Wait... 🌍' }, { quoted: msg });
 
             // Mengambil data dari API publik BMKG
             const response = await axios.get('https://data.bmkg.go.id/DataMKG/TEWS/autogempa.json');

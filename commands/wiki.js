@@ -14,7 +14,7 @@ module.exports = {
 
         try {
             console.log(`[Wiki] Mencari: ${query}`);
-            await sock.sendMessage(from, { text: `🔎 Sebentar, lagi nyari info tentang "${query}" di Wikipedia...` }, { quoted: msg });
+            await sock.sendMessage(from, { text: 'Wait...' }, { quoted: msg });
 
             // Mencari halaman di Wikipedia (bahasa Indonesia)
             const page = await wiki({ apiUrl: 'https://id.wikipedia.org/w/api.php' }).page(query);

@@ -61,6 +61,10 @@ _Cari sumber anime dari screenshot._
 _Mention semua anggota grup._
 
 ━━━━━━━━━━━━━━━
+.about
+_Menampilkan informasi tentang bot._
+
+━━━━━━━━━━━━━━━
 ✨ Selamat mencoba!
         `;
         await sock.sendMessage(from, { text: menuText }, { quoted: msg });

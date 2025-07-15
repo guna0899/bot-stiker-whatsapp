@@ -3,7 +3,6 @@ const ffmpeg = require('fluent-ffmpeg');
 const fs = require('fs');
 const path = require('path');
 
-// Fungsi untuk membuat stiker (ini bisa kita simpan di file terpisah nanti, misal 'utils.js')
 async function createSticker(media, isVideo = false) {
     return new Promise((resolve, reject) => {
         const tempFileIn = path.join(__dirname, `../temp_in_${Date.now()}.${isVideo ? 'mp4' : 'jpg'}`);
@@ -32,9 +31,8 @@ async function createSticker(media, isVideo = false) {
     });
 }
 
-
 module.exports = {
-    name: 'stiker',
+    name: 's',
     description: 'Mengubah gambar/video menjadi stiker.',
     async execute(sock, msg, args) {
         const from = msg.key.remoteJid;
@@ -44,7 +42,7 @@ module.exports = {
         const isQuotedMedia = msg.message.extendedTextMessage?.contextInfo?.quotedMessage && (msg.message.extendedTextMessage.contextInfo.quotedMessage.imageMessage || msg.message.extendedTextMessage.contextInfo.quotedMessage.videoMessage);
 
         if (!isMedia && !isQuotedMedia) {
-             await sock.sendMessage(from, { text: `Perintah .stiker harus dikirim bareng gambar/video, atau balas gambar/video yang sudah ada.` }, { quoted: msg });
+             await sock.sendMessage(from, { text: `Perintah .s harus dikirim bareng gambar/video, atau balas media yang sudah ada.` }, { quoted: msg });
             return;
         }
 
@@ -58,7 +56,7 @@ module.exports = {
             mediaType = Object.keys(msg.message.extendedTextMessage.contextInfo.quotedMessage)[0];
         }
         
-        console.log(`[Sticker] Perintah diterima dari ${from}`);
+        console.log(`[Sticker] Perintah .s diterima dari ${from}`);
         await sock.sendMessage(from, { text: 'Sabar ya, stiker lagi dibikin...' }, { quoted: msg });
         
         const stream = await downloadContentFromMessage(mediaMsg, mediaType.replace('Message', ''));

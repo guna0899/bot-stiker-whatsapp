@@ -1,10 +1,5 @@
 const axios = require('axios');
 
-/**
- * Fungsi untuk download video TikTok tanpa watermark
- * @param {string} url URL video TikTok
- * @returns {Promise<Buffer>} Buffer dari video mp4
- */
 async function downloadTikTok(url) {
     try {
         const response = await axios.post('https://lovetik.com/api/ajax/search', new URLSearchParams({ query: url }), {
@@ -30,24 +25,24 @@ async function downloadTikTok(url) {
 }
 
 module.exports = {
-    name: 'tiktok',
+    name: 'tt',
     description: 'Download video TikTok tanpa watermark.',
     async execute(sock, msg, args) {
         const from = msg.key.remoteJid;
         const url = args[0];
 
         if (!url) {
-            await sock.sendMessage(from, { text: 'Link TikTok-nya mana? Contoh: .tiktok https://vt.tiktok.com/xxxxx/' }, { quoted: msg });
+            await sock.sendMessage(from, { text: 'Link TikTok-nya mana? Contoh: .tt https://vt.tiktok.com/xxxxx/' }, { quoted: msg });
             return;
         }
 
-        console.log(`[TikTok] Perintah diterima dari ${from} dengan URL: ${url}`);
-        await sock.sendMessage(from, { text: 'Oke, pakai teknik baru nih buat download... Sabar ya. 🚀' }, { quoted: msg });
+        console.log(`[TikTok] Perintah .tt diterima dari ${from} dengan URL: ${url}`);
+        await sock.sendMessage(from, { text: 'Oke, lagi download video TikTok... Sabar ya. 🚀' }, { quoted: msg });
         
         const videoBuffer = await downloadTikTok(url);
         await sock.sendMessage(from, { 
             video: videoBuffer,
-            caption: 'Nih videonya, Muna-kun! Berhasil pakai teknik baru! ✨'
+            caption: 'Nih videonya, Muna-kun! ✨'
         }, { quoted: msg });
     }
 };

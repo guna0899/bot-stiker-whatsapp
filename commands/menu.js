@@ -4,26 +4,25 @@ module.exports = {
     async execute(sock, msg, args) {
         const from = msg.key.remoteJid;
         const menuText = `
-🤖 *BOT MUNA-KUN* 🤖
-
-Halo! Ini daftar perintah yang bisa kamu pakai:
-
-*Hiburan & Info*
-› *.hijriah* - _Cek tanggal Hijriah hari ini._
-› *.katakata* - _Dapet kata-kata bijak._
-› *.pantun* - _Dapet pantun acak._
-› *.gempa* - _Info gempa terkini._
-› *.wiki <topik>* - _Cari info di Wikipedia._
-
-*Tools Keren*
-› *.ai <pertanyaan>* - _Tanya apa aja ke Gemini._
-› *.stiker* - _Ubah gambar/video jadi stiker._
-› *.tiktok <link>* - _Download video TikTok._
-
-*Fitur Grup*
-› *.tagall* - _Mention semua anggota._
-
-Selamat mencoba! ✨
+┌─「 🤖  *BOT MUNA-KUN* 🤖 」
+│
+├─「 𝗧𝗼𝗼𝗹𝘀 」
+│
+│  ›  *.s*
+│     └─ _Ubah gambar/video jadi stiker._
+│
+│  ›  *.tt <link>*
+│     └─ _Download video TikTok._
+│
+│  ›  *.ai <pertanyaan>*
+│     └─ _Tanya apa saja ke Gemini._
+│
+├─「 𝗚𝗿𝘂𝗽 」
+│
+│  ›  *.tagall*
+│     └─ _Mention semua anggota._
+│
+└─「 ✨ Selamat Mencoba! ✨ 」
         `;
         await sock.sendMessage(from, { text: menuText }, { quoted: msg });
     }

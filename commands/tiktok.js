@@ -36,8 +36,13 @@ module.exports = {
             return;
         }
 
+<<<<<<< HEAD
         console.log(`[TikTok] Perintah .tt diterima dari ${from} dengan URL: ${url}`);
         await sock.sendMessage(from, { text: 'Oke, lagi download video TikTok... Sabar ya. 🚀' }, { quoted: msg });
+=======
+        console.log(`[TikTok] Perintah diterima dari ${from} dengan URL: ${url}`);
+        await sock.sendMessage(from, { text: 'Wait...' }, { quoted: msg });
+>>>>>>> 16f8d3a7d166854bc4b06033476f80d064b17ca1
         
         const videoBuffer = await downloadTikTok(url);
         await sock.sendMessage(from, { 

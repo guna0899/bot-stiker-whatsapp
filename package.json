@@ -1,6 +1,6 @@
 {
   "name": "wa-bot",
-  "version": "1.0.0",
+  "version": "1.5.0",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -11,12 +11,19 @@
   "description": "",
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "@vitalets/google-translate-api": "^9.2.1",
     "@whiskeysockets/baileys": "^6.7.18",
     "axios": "^1.10.0",
+    "chalk": "^4.1.2",
     "cheerio": "^1.1.0",
+    "ffmpeg-static": "^5.2.0",
     "fluent-ffmpeg": "^2.1.3",
     "qrcode-terminal": "^0.12.0",
+<<<<<<< HEAD
     "replicate": "^1.0.1",
+=======
+    "wa-sticker-formatter": "^4.4.4",
+>>>>>>> 16f8d3a7d166854bc4b06033476f80d064b17ca1
     "wikijs": "^6.4.1"
   },
   "devDependencies": {
